@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment - VayuMitra.sky</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">VayuMitra.sky</div>
+        <div class="nav-links">
+          <a href="cart.html">Back to Cart</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="payment-container">
+        <h2>Complete Payment</h2>
+        <button id="payNowBtn" class="btn">Pay Now</button>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 VayuMitra.sky</p>
+    </footer>
+
+    <script type="module">
+      import {
+        cartAPI,
+        ordersAPI,
+        paymentsAPI,
+        getCurrentUser,
+      } from "../js/api.js";
+
+      const currentUser = getCurrentUser();
+
+      document.getElementById("payNowBtn").onclick = async function () {
+        try {
+          // 1️⃣ Read delivery address from localStorage
+          const deliveryAddress =
+            JSON.parse(localStorage.getItem("deliveryAddress")) || {};
+
+          // 2️⃣ Fetch cart data
+          const cartResponse = await cartAPI.get();
+          const cart = cartResponse.cart;
+
+          if (!cart || !cart.items.length) {
+            alert("Your cart is empty!");
+            return;
+          }
+
+          const orderType =
+            cart.items[0]?.product?.category ||
+            cart.items[0]?.category ||
+            "other";
+
+          // 3️⃣ Calculate total if backend didn’t give
+          let total = cart.totalAmount;
+          if (!total) {
+            total = cart.items.reduce((sum, it) => {
+              const price = it.product?.price || it.price || 0;
+              return sum + price * it.quantity;
+            }, 0);
+          }
+
+          // 4️⃣ Create order in backend with address
+          const orderResp = await ordersAPI.create({
+            orderType,
+            description: "Order from cart",
+            location: {
+              address: deliveryAddress.address || "",
+              latitude: deliveryAddress.latitude || "0",
+              longitude: deliveryAddress.longitude || "0",
+            },
+            items: cart.items,
+            totalAmount: total,
+            status: "pending",
+          });
+
+          const backendOrderId = orderResp.order._id;
+
+          const paymentResp = await paymentsAPI.createOrder(
+            total,
+            backendOrderId
+          );
+
+          const razorOrder = paymentResp.order;
+
+          const options = {
+            key: razorOrder.key,
+            amount: razorOrder.amount,
+            currency: razorOrder.currency,
+            name: "VayuMitra.sky",
+            description: "Drone Delivery Payment",
+            order_id: razorOrder.id,
+
+            handler: async function (response) {
+              const verifyResp = await paymentsAPI.verifyPayment({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                orderId: backendOrderId,
+              });
+
+              if (!verifyResp.success) {
+                alert("Payment verification failed!");
+                return;
+              }
+
+              // 6️⃣ Clear cart
+              await cartAPI.clear();
+
+              // Optional: Clear saved address
+              localStorage.removeItem("deliveryAddress");
+
+              alert("Payment successful! Order placed.");
+              window.location.href = "user-dashboard.html";
+            },
+
+            prefill: {
+              name: currentUser?.name || "",
+              email: currentUser?.email || "",
+              contact: currentUser?.phone || "",
+            },
+
+            theme: { color: "#1B263B" },
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } catch (err) {
+          alert("Unable to process payment.");
+        }
+      };
+    </script>
+  </body>
+</html>

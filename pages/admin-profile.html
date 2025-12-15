@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Profile - VayuMitra.sky</title>
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <style>
+      .profile-container {
+        max-width: 500px;
+        margin: 3rem auto;
+        background: #ffffff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      .profile-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #1b263b;
+      }
+
+      .profile-info {
+        margin-bottom: 1.5rem;
+      }
+
+      .profile-info p {
+        font-size: 1.1rem;
+        margin: 8px 0;
+      }
+
+      .btn-logout {
+        width: 100%;
+        padding: 12px;
+        background: #b71c1c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 1.1rem;
+        margin-top: 1rem;
+      }
+      .btn-logout:hover {
+        background: #8b0000;
+      }
+
+      .back-btn {
+        display: block;
+        text-align: center;
+        margin-top: 1rem;
+        text-decoration: none;
+        color: #1b263b;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">VayuMitra.sky</div>
+        <div class="nav-links" id="navLinks">
+          <a href="admin-dashboard.html">Dashboard</a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="profile-container">
+        <h2 class="profile-title">Admin Profile</h2>
+
+        <div class="profile-info">
+          <p><strong>Name:</strong> <span id="adminName">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="adminEmail">Loading...</span></p>
+          <p><strong>Role:</strong> <span id="adminRole">Admin</span></p>
+        </div>
+
+        <button class="btn-logout" id="logoutBtn">Logout</button>
+        <a class="back-btn" href="admin-dashboard.html">← Back to Dashboard</a>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 VayuMitra.sky</p>
+    </footer>
+
+    <script type="module">
+      import {
+        getCurrentUser,
+        removeAuthToken,
+        removeCurrentUser,
+      } from "../js/api.js";
+
+      const user = getCurrentUser();
+
+      if (!user || user.role !== "admin") {
+        alert("Unauthorized Access!");
+        window.location.href = "../index.html";
+      }
+
+      // Fill profile details
+      document.getElementById("adminName").innerText = user.name || "Admin";
+      document.getElementById("adminEmail").innerText =
+        user.email || "Not available";
+
+      // Logout
+      document.getElementById("logoutBtn").onclick = function () {
+        removeAuthToken();
+        removeCurrentUser();
+        localStorage.removeItem("adminLoggedIn");
+        window.location.href = "../pages/admin-login.html";
+      };
+    </script>
+  </body>
+</html>

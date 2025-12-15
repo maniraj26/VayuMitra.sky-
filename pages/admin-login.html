@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Login - VayuMitra.sky</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      :root {
+        --primary-color: #1b263b;
+        --secondary-color: #415a77;
+        --accent-color: #778da9;
+        --success-color: #10b981;
+        --danger-color: #ef4444;
+        --light-bg: #f8fafc;
+        --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --hover-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --border-radius: 12px;
+        --transition: all 0.3s ease;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Oxygen, Ubuntu, sans-serif;
+        background: linear-gradient(135deg, #1b263b 0%, #2d3a5c 100%);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 1rem 2rem;
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        background: linear-gradient(45deg, #fff, #e0f2fe);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .nav-links a:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+      }
+
+      main {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+
+      .login-container {
+        width: 100%;
+        max-width: 450px;
+        margin: 0 auto;
+      }
+
+      .login-card {
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        padding: 3rem;
+        animation: slideUp 0.5s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+      }
+
+      .login-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 8px 20px rgba(27, 38, 59, 0.2);
+      }
+
+      .login-icon i {
+        font-size: 2.5rem;
+        color: white;
+      }
+
+      .login-header h2 {
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .login-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+      }
+
+      #adminLoginForm {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .form-group {
+        position: relative;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        font-size: 0.95rem;
+      }
+
+      .input-with-icon {
+        position: relative;
+      }
+
+      .input-with-icon i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 1.1rem;
+      }
+
+      .input-with-icon input {
+        width: 100%;
+        padding: 0.875rem 1rem 0.875rem 3rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: var(--transition);
+        background: white;
+      }
+
+      .input-with-icon input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(119, 141, 169, 0.1);
+      }
+
+      .input-with-icon input.error {
+        border-color: var(--danger-color);
+        animation: shake 0.5s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-5px);
+        }
+        75% {
+          transform: translateX(5px);
+        }
+      }
+
+      .form-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.5rem;
+      }
+
+      .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+      }
+
+      .remember-me input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--primary-color);
+        cursor: pointer;
+      }
+
+      .remember-me label {
+        color: #64748b;
+        font-size: 0.9rem;
+        cursor: pointer;
+        user-select: none;
+      }
+
+      .forgot-password {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: var(--transition);
+      }
+
+      .forgot-password:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      .btn {
+        padding: 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        margin-top: 0.5rem;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(27, 38, 59, 0.3);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .btn-loading {
+        position: relative;
+        color: transparent;
+      }
+
+      .btn-loading::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top-color: white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .login-footer {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .login-footer p {
+        color: #64748b;
+        font-size: 0.9rem;
+      }
+
+      .admin-hint {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+        color: #94a3b8;
+        font-size: 0.85rem;
+      }
+
+      .admin-hint i {
+        color: var(--warning-color);
+      }
+
+      /* Alert Messages */
+      .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: fadeIn 0.3s ease;
+      }
+
+      .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border-left: 4px solid var(--danger-color);
+      }
+
+      .alert-success {
+        background: #d1fae5;
+        color: #065f46;
+        border-left: 4px solid var(--success-color);
+      }
+
+      .alert i {
+        font-size: 1.2rem;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        header {
+          padding: 1rem;
+        }
+
+        .logo {
+          font-size: 1.5rem;
+        }
+
+        .login-card {
+          padding: 2rem;
+          margin: 0 1rem;
+        }
+
+        .login-icon {
+          width: 70px;
+          height: 70px;
+        }
+
+        .login-icon i {
+          font-size: 2rem;
+        }
+
+        .login-header h2 {
+          font-size: 1.5rem;
+        }
+
+        .form-footer {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        main {
+          padding: 1rem;
+        }
+
+        .login-card {
+          padding: 1.5rem;
+        }
+
+        .input-with-icon input {
+          padding: 0.75rem 0.75rem 0.75rem 2.5rem;
+          font-size: 16px; /* Prevent iOS zoom */
+        }
+      }
+
+      /* Decorative Elements */
+      .background-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 20% 80%,
+            rgba(119, 141, 169, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 80% 20%,
+            rgba(65, 90, 119, 0.1) 0%,
+            transparent 50%
+          );
+        z-index: -1;
+      }
+
+      footer {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        text-align: center;
+        padding: 1.5rem;
+      }
+
+      footer p {
+        opacity: 0.8;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="background-pattern"></div>
+
+    <header>
+      <nav>
+        <div class="logo"><i class="fas fa-wind"></i> VayuMitra.sky</div>
+        <div class="nav-links">
+          <a href="../index.html"> <i class="fas fa-home"></i> Home </a>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="login-container">
+        <div class="login-card">
+          <div class="login-header">
+            <div class="login-icon">
+              <i class="fas fa-user-shield"></i>
+            </div>
+            <h2>Admin Portal</h2>
+            <p>Sign in to access the admin dashboard</p>
+          </div>
+
+          <div id="alertContainer"></div>
+
+          <form id="adminLoginForm">
+            <div class="form-group">
+              <label for="adminEmail">Email Address</label>
+              <div class="input-with-icon">
+                <i class="fas fa-envelope"></i>
+                <input
+                  type="email"
+                  id="adminEmail"
+                  name="adminEmail"
+                  placeholder="admin@vayumitra.com"
+                  required
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="adminPassword">Password</label>
+              <div class="input-with-icon">
+                <i class="fas fa-lock"></i>
+                <input
+                  type="password"
+                  id="adminPassword"
+                  name="adminPassword"
+                  placeholder="Enter your password"
+                  required
+                  autocomplete="current-password"
+                />
+              </div>
+              <div class="form-footer">
+                <div class="remember-me">
+                  <input type="checkbox" id="rememberMe" name="rememberMe" />
+                  <label for="rememberMe">Remember me</label>
+                </div>
+                <a href="#" class="forgot-password">Forgot password?</a>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary" id="loginBtn">
+              <i class="fas fa-sign-in-alt"></i> Sign In
+            </button>
+
+            <div class="login-footer">
+              <p>Access restricted to authorized personnel only</p>
+              <div class="admin-hint">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>Contact system administrator for credentials</span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 VayuMitra.sky. All rights reserved.</p>
+    </footer>
+
+    <!-- Check if already logged in -->
+    <script type="module">
+      import { getCurrentUser } from "../js/api.js";
+
+      const user = getCurrentUser();
+      const adminLogged = localStorage.getItem("adminLoggedIn");
+
+      if (user && user.role === "admin" && adminLogged === "true") {
+        window.location.href = "admin-dashboard.html";
+      }
+    </script>
+
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/auth.js"></script>
+
+    <script>
+      // Enhanced login form handling
+      document.addEventListener("DOMContentLoaded", function () {
+        const loginForm = document.getElementById("adminLoginForm");
+        const loginBtn = document.getElementById("loginBtn");
+        const alertContainer = document.getElementById("alertContainer");
+
+        // Load saved credentials if "Remember me" was checked
+        const savedEmail = localStorage.getItem("adminEmail");
+        const rememberMe = localStorage.getItem("rememberAdmin") === "true";
+
+        if (savedEmail && rememberMe) {
+          document.getElementById("adminEmail").value = savedEmail;
+          document.getElementById("rememberMe").checked = true;
+        }
+
+        function showAlert(message, type = "error") {
+          alertContainer.innerHTML = `
+            <div class="alert alert-${type}">
+              <i class="fas fa-${
+                type === "error" ? "exclamation-circle" : "check-circle"
+              }"></i>
+              <span>${message}</span>
+            </div>
+          `;
+
+          // Auto-remove alert after 5 seconds
+          setTimeout(() => {
+            const alert = alertContainer.querySelector(".alert");
+            if (alert) {
+              alert.style.opacity = "0";
+              alert.style.transform = "translateY(-10px)";
+              setTimeout(() => {
+                if (alert.parentElement === alertContainer) {
+                  alertContainer.removeChild(alert);
+                }
+              }, 300);
+            }
+          }, 5000);
+        }
+
+        function setLoading(isLoading) {
+          if (isLoading) {
+            loginBtn.disabled = true;
+            loginBtn.classList.add("btn-loading");
+            loginBtn.innerHTML = "";
+          } else {
+            loginBtn.disabled = false;
+            loginBtn.classList.remove("btn-loading");
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Sign In';
+          }
+        }
+
+        function validateForm() {
+          const email = document.getElementById("adminEmail").value.trim();
+          const password = document
+            .getElementById("adminPassword")
+            .value.trim();
+
+          // Clear previous alerts
+          alertContainer.innerHTML = "";
+
+          // Validate email
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(email)) {
+            showAlert("Please enter a valid email address");
+            document.getElementById("adminEmail").classList.add("error");
+            return false;
+          }
+
+          // Validate password
+          if (password.length < 6) {
+            showAlert("Password must be at least 6 characters long");
+            document.getElementById("adminPassword").classList.add("error");
+            return false;
+          }
+
+          // Clear error styles
+          document.getElementById("adminEmail").classList.remove("error");
+          document.getElementById("adminPassword").classList.remove("error");
+
+          return true;
+        }
+
+        // Remove error class on input
+        document
+          .getElementById("adminEmail")
+          .addEventListener("input", function () {
+            this.classList.remove("error");
+          });
+
+        document
+          .getElementById("adminPassword")
+          .addEventListener("input", function () {
+            this.classList.remove("error");
+          });
+
+        // Form submission
+        loginForm.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          if (!validateForm()) {
+            return;
+          }
+
+          const email = document.getElementById("adminEmail").value.trim();
+          const password = document
+            .getElementById("adminPassword")
+            .value.trim();
+          const rememberMe = document.getElementById("rememberMe").checked;
+
+          setLoading(true);
+
+          try {
+            // Simulate API call (replace with actual API call)
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            // Save credentials if "Remember me" is checked
+            if (rememberMe) {
+              localStorage.setItem("adminEmail", email);
+              localStorage.setItem("rememberAdmin", "true");
+            } else {
+              localStorage.removeItem("adminEmail");
+              localStorage.removeItem("rememberAdmin");
+            }
+
+            // Simulate successful login
+            localStorage.setItem("adminLoggedIn", "true");
+
+            // Redirect to dashboard
+            window.location.href = "admin-dashboard.html";
+          } catch (error) {
+            showAlert("Invalid credentials. Please try again.");
+            console.error("Login error:", error);
+          } finally {
+            setLoading(false);
+          }
+        });
+
+        // Forgot password link
+        document
+          .querySelector(".forgot-password")
+          .addEventListener("click", function (e) {
+            e.preventDefault();
+            showAlert(
+              "Please contact the system administrator to reset your password.",
+              "error"
+            );
+          });
+
+        // Enter key to submit
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" && !loginBtn.disabled) {
+            loginForm.dispatchEvent(new Event("submit"));
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

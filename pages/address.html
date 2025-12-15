@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Address - VayuMitra.sky</title>
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <style>
+      /* Search dropdown */
+      .dropdown {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        background: white;
+        border: 1px solid #ccc;
+        position: absolute;
+        width: 90%;
+        z-index: 99;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+      .dropdown li {
+        padding: 8px;
+        cursor: pointer;
+      }
+
+      .dropdown li:hover {
+        background: #eee;
+      }
+
+      .cart-images {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-bottom: 20px;
+      }
+
+      .cart-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        background: #f5f7fa;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .cart-thumb {
+        width: 70px;
+        height: 70px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .cart-info {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .item-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .item-sub {
+        margin: 2px 0 0 0;
+        font-size: 14px;
+        color: #444;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">VayuMitra.sky</div>
+        <button class="nav-toggle">
+          <span style="font-size: 2rem">&#9776;</span>
+        </button>
+        <div class="nav-links" id="navLinks"></div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="address-container">
+        <h2>Delivery Address</h2>
+
+        <form id="addressForm">
+          <!-- SEARCH BOX -->
+          <label>Search Location</label>
+          <input type="text" id="searchBox" placeholder="Search place..." />
+          <ul id="searchResults" class="dropdown"></ul>
+
+          <label>Address / Plus Code</label>
+          <input type="text" id="addressInput" required />
+
+          <label>Latitude</label>
+          <input type="number" id="latitude" step="any" required />
+
+          <label>Longitude</label>
+          <input type="number" id="longitude" step="any" required />
+
+          <label>Lat, Long</label>
+          <input type="text" id="latlong" readonly />
+
+          <button type="button" id="getGPSBtn" class="btn">
+            Autofill My Location
+          </button>
+
+          <button type="submit" class="btn" style="margin-top: 1rem">
+            Continue to Payment
+          </button>
+        </form>
+
+        <h3 style="margin-top: 2rem">Map Preview</h3>
+
+        <!-- GOOGLE MAP EMBED -->
+        <iframe
+          id="mapFrame"
+          width="100%"
+          height="300"
+          style="border: 0; border-radius: 10px; margin-top: 10px"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        >
+        </iframe>
+
+        <hr />
+
+        <h3>Order Summary</h3>
+        <div id="summary"></div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 VayuMitra.sky</p>
+    </footer>
+
+    <!-- JS IMPORTS -->
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/navbar.js"></script>
+
+    <script type="module">
+      import { cartAPI } from "../js/api.js";
+
+      // ------------------------ GOOGLE MAP UPDATE ------------------------
+      function updateMap(lat, lng) {
+        if (!lat || !lng) return;
+        const url = `https://www.google.com/maps?q=${lat},${lng}&z=15&output=embed`;
+        document.getElementById("mapFrame").src = url;
+      }
+
+      // ------------------------ AUTOFILL GPS ------------------------
+      document.getElementById("getGPSBtn").onclick = () => {
+        if (!navigator.geolocation) {
+          alert("GPS not supported on your device");
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+
+            document.getElementById("latitude").value = lat;
+            document.getElementById("longitude").value = lng;
+            document.getElementById("latlong").value = `${lat}, ${lng}`;
+
+            updateMap(lat, lng);
+          },
+          () => alert("Unable to fetch location")
+        );
+      };
+
+      // ------------------------ SEARCH BOX AUTOCOMPLETE ------------------------
+      const searchBox = document.getElementById("searchBox");
+      const searchResults = document.getElementById("searchResults");
+
+      searchBox.addEventListener("input", async () => {
+        const query = searchBox.value.trim();
+        if (!query) {
+          searchResults.innerHTML = "";
+          return;
+        }
+
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query
+        )}`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+
+        searchResults.innerHTML = "";
+
+        data.slice(0, 5).forEach((item) => {
+          const li = document.createElement("li");
+          li.textContent = item.display_name;
+
+          li.onclick = () => {
+            searchBox.value = item.display_name;
+
+            document.getElementById("latitude").value = item.lat;
+            document.getElementById("longitude").value = item.lon;
+            document.getElementById(
+              "latlong"
+            ).value = `${item.lat}, ${item.lon}`;
+
+            updateMap(item.lat, item.lon);
+            searchResults.innerHTML = "";
+          };
+
+          searchResults.appendChild(li);
+        });
+      });
+
+      // ------------------------ UPDATE MAP ON MANUAL INPUT ------------------------
+      document.getElementById("latitude").addEventListener("input", () => {
+        const lat = document.getElementById("latitude").value;
+        const lng = document.getElementById("longitude").value;
+        updateMap(lat, lng);
+      });
+
+      document.getElementById("longitude").addEventListener("input", () => {
+        const lat = document.getElementById("latitude").value;
+        const lng = document.getElementById("longitude").value;
+        updateMap(lat, lng);
+      });
+
+      // ------------------------ ORDER SUMMARY ------------------------
+      async function loadSummary() {
+        const res = await cartAPI.get();
+        const cart = res.cart;
+        const items = cart.items || [];
+
+        const summary = document.getElementById("summary");
+
+        let html = `
+    <div class="cart-images">
+  `;
+
+        let total = 0;
+
+        items.forEach((i) => {
+          const title = i.product?.name || i.name;
+          const price = i.product?.price || i.price || 0;
+          const qty = i.quantity;
+          const img = i.product?.image || i.image;
+
+          total += price * qty;
+
+          html += `
+      <div class="cart-item">
+       <img src="http://localhost:5000${img}" alt="${title}" class="cart-thumb" />
+        <div class="cart-info">
+          <p class="item-title">${title}</p>
+          <p class="item-sub">₹${price} × ${qty}</p>
+        </div>
+      </div>
+    `;
+        });
+
+        html += `
+    </div>
+    <h3>Total: ₹${total}</h3>
+  `;
+
+        summary.innerHTML = html;
+
+        localStorage.setItem("orderTotal", total);
+      }
+
+      loadSummary();
+
+      // ------------------------ SAVE ADDRESS ------------------------
+      document.getElementById("addressForm").onsubmit = function (e) {
+        e.preventDefault();
+
+        const addr = {
+          address: document.getElementById("addressInput").value,
+          latitude: document.getElementById("latitude").value,
+          longitude: document.getElementById("longitude").value,
+        };
+
+        localStorage.setItem("deliveryAddress", JSON.stringify(addr));
+
+        window.location.href = "payment.html";
+      };
+    </script>
+  </body>
+</html>

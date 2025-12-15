@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Orders – VayuMitra.sky</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">VayuMitra.sky</div>
+
+        <!-- Mobile Toggle Button -->
+        <button class="nav-toggle" aria-label="Open navigation">
+          <span style="font-size: 2rem">&#9776;</span>
+        </button>
+
+        <!-- Dynamic Navbar -->
+        <div class="nav-links" id="navLinks"></div>
+      </nav>
+    </header>
+
+    <main>
+      <section class="order-history">
+        <h2>Your Order History</h2>
+        <div id="orderList" class="order-list"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Drone Delivery Service. All rights reserved.</p>
+    </footer>
+
+    <!-- Core Scripts -->
+    <script type="module" src="../js/api.js"></script>
+    <script type="module" src="../js/navbar.js"></script>
+
+    <!-- Load only order history functionality -->
+    <script type="module">
+      import { ordersAPI, getCurrentUser } from "../js/api.js";
+
+      const user = getCurrentUser();
+      if (!user) {
+        alert("Please login first");
+        window.location.href = "user-login.html";
+      }
+
+      async function loadOrders() {
+        try {
+          const res = await ordersAPI.getMyOrders();
+
+          const list = document.getElementById("orderList");
+          if (!res.success || !res.orders.length) {
+            list.innerHTML = "<p>No orders found.</p>";
+            return;
+          }
+
+          list.innerHTML = res.orders
+            .map(
+              (o) => `
+              <div class="order-card">
+                <h3>Order #${o._id}</h3>
+                <p><strong>Type:</strong> ${o.orderType}</p>
+                <p><strong>Status:</strong> ${o.status}</p>
+                <p><strong>Total:</strong> ₹${o.totalAmount}</p>
+                <p><strong>Date:</strong> ${new Date(
+                  o.createdAt
+                ).toLocaleString()}</p>
+              </div>
+            `
+            )
+            .join("");
+        } catch (err) {
+          document.getElementById("orderList").innerHTML =
+            "<p>Failed to load orders.</p>";
+        }
+      }
+
+      loadOrders();
+    </script>
+  </body>
+</html>

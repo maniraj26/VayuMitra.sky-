@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Account – VayuMitra.sky</title>
+    <link rel="stylesheet" href="../../css/style.css" />
+  </head>
+
+  <body>
+    <header>
+      <nav>
+        <div class="logo">VayuMitra.sky</div>
+
+        <!-- Mobile Nav Toggle -->
+        <button class="nav-toggle" aria-label="Open navigation">
+          <span style="font-size: 2rem">&#9776;</span>
+        </button>
+
+        <!-- Dynamic navbar -->
+        <div class="nav-links" id="navLinks"></div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="form-container">
+        <h2>Your Account</h2>
+
+        <div id="accountInfo">
+          <p><strong>Name:</strong> <span id="userName"></span></p>
+          <p><strong>Email:</strong> <span id="userEmail"></span></p>
+          <p><strong>Phone:</strong> <span id="userPhone"></span></p>
+          <p><strong>Role:</strong> <span id="userRole"></span></p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 VayuMitra.sky – Drone Delivery Service</p>
+    </footer>
+
+    <script type="module" src="../../js/api.js"></script>
+    <script type="module" src="../../js/navbar.js"></script>
+
+    <script type="module">
+      import {
+        getCurrentUser,
+        removeAuthToken,
+        removeCurrentUser,
+      } from "../../js/api.js";
+
+      const user = getCurrentUser();
+
+      // Redirect if not logged in
+      if (!user) {
+        alert("Session expired. Please login again.");
+        window.location.href = "../user-login.html";
+      }
+
+      // Fill user data
+      document.getElementById("userName").textContent = user.name;
+      document.getElementById("userEmail").textContent = user.email;
+      document.getElementById("userPhone").textContent = user.phone;
+      document.getElementById("userRole").textContent =
+        user.role?.toUpperCase() || "USER";
+
+      // Logout (navbar.js will also attach this)
+      const logout = document.getElementById("logoutBtn");
+      if (logout) {
+        logout.onclick = () => {
+          removeAuthToken();
+          removeCurrentUser();
+          window.location.href = "../user-login.html";
+        };
+      }
+    </script>
+  </body>
+</html>
